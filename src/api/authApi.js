@@ -10,16 +10,14 @@ export const signup = async (signupData) => {
   return response.data;
 };
 
+const API_BASE =
+  import.meta.env.VITE_API_BASE_URL ||
+  "https://elevatebackend-dcct.onrender.com/api";
+
 export const loginWithGoogle = () => {
-
-    window.location.href =
-        "http://localhost:8084/oauth2/authorization/google";
-
+  window.location.href = `${API_BASE.replace("/api", "")}/oauth2/authorization/google`;
 };
 
 export const loginWithGithub = () => {
-
-    window.location.href =
-        "http://localhost:8084/oauth2/authorization/github";
-
+  window.location.href = `${API_BASE.replace("/api", "")}/oauth2/authorization/github`;
 };
