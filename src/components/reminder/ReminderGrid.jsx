@@ -9,14 +9,15 @@ export default function ReminderGrid({
   onComplete,
 }) {
   return (
-    <Grid container spacing={3}>
+    <Grid container spacing={{ xs: 2, md: 3 }}>
       {reminders.map((reminder) => (
         <Grid
-          item
-          xs={12}
-          md={6}
-          lg={4}
           key={reminder.id}
+          size={{
+            xs: 12,
+            sm: 6,
+            xl: 4,
+          }}
         >
           <ReminderCard
             reminder={reminder}

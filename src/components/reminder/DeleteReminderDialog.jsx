@@ -17,30 +17,33 @@ export default function DeleteReminderDialog({
     <Dialog
       open={open}
       onClose={onClose}
+      maxWidth="xs"
+      fullWidth
     >
       <DialogTitle>
         Delete Reminder
       </DialogTitle>
 
       <DialogContent>
-
         <Typography>
-
           Are you sure you want to delete
-
           <strong>
             {" "}
             {reminder?.title}
           </strong>
-
           ?
-
         </Typography>
 
+        <Typography
+          variant="body2"
+          color="text.secondary"
+          sx={{ mt: 2 }}
+        >
+          This action cannot be undone.
+        </Typography>
       </DialogContent>
 
-      <DialogActions>
-
+      <DialogActions sx={{ p: 2 }}>
         <Button onClick={onClose}>
           Cancel
         </Button>
@@ -52,9 +55,7 @@ export default function DeleteReminderDialog({
         >
           Delete
         </Button>
-
       </DialogActions>
-
     </Dialog>
   );
 }

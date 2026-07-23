@@ -4,6 +4,7 @@ import {
   Alert,
   Box,
   CircularProgress,
+  Snackbar,
 } from "@mui/material";
 
 import { useReminders } from "../context/ReminderContext";
@@ -12,9 +13,9 @@ import ReminderToolbar from "../components/reminder/ReminderToolbar";
 import ReminderGrid from "../components/reminder/ReminderGrid";
 import CreateReminderDialog from "../components/reminder/CreateReminderDialog";
 import DeleteReminderDialog from "../components/reminder/DeleteReminderDialog";
+import EmptyReminder from "../components/reminder/EmptyReminder";
 
 export default function Reminders() {
-
   const {
     reminders,
     loading,
@@ -37,136 +38,148 @@ export default function Reminders() {
   const [selectedReminder, setSelectedReminder] =
     useState(null);
 
-  const filteredReminders = useMemo(() => {
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    severity: "success",
+    message: "",
+  });
 
+  const filteredReminders = useMemo(() => {
     return reminders.filter((reminder) =>
       reminder.title
         .toLowerCase()
         .includes(search.toLowerCase())
     );
-
   }, [reminders, search]);
 
-  const handleSaveReminder = async (reminder) => {
+  const showSnackbar = (
+    severity,
+    message
+  ) => {
+    setSnackbar({
+      open: true,
+      severity,
+      message,
+    });
+  };
 
-    try {
+  const handleSaveReminder = async (
+    reminder
+  ) => {
+    let result;
 
-      if (editingReminder) {
-
-        await editReminder(
-          editingReminder.id,
-          reminder
-        );
-
-      } else {
-
-        await addReminder(reminder);
-
-      }
-
-      setDialogOpen(false);
-
-      setEditingReminder(null);
-
-    } catch (err) {
-
-      console.error(err);
-
+    if (editingReminder) {
+      result = await editReminder(
+        editingReminder.id,
+        reminder
+      );
+    } else {
+      result = await addReminder(reminder);
     }
 
+    showSnackbar(
+      result.success ? "success" : "error",
+      result.message
+    );
+
+    if (result.success) {
+      setDialogOpen(false);
+      setEditingReminder(null);
+    }
   };
 
   const handleDelete = async () => {
+    const result = await removeReminder(
+      selectedReminder.id
+    );
 
-    try {
+    showSnackbar(
+      result.success ? "success" : "error",
+      result.message
+    );
 
-      await removeReminder(selectedReminder.id);
-
+    if (result.success) {
       setDeleteDialogOpen(false);
-
       setSelectedReminder(null);
-
-    } catch (err) {
-
-      console.error(err);
-
     }
+  };
 
+  const handleComplete = async (
+    reminder
+  ) => {
+    const result = await markCompleted(
+      reminder.id
+    );
+
+    showSnackbar(
+      result.success ? "success" : "error",
+      result.message
+    );
   };
 
   return (
-
     <Box>
-
       <ReminderToolbar
         search={search}
         onSearchChange={setSearch}
         onCreateReminder={() => {
-
           setEditingReminder(null);
-
           setDialogOpen(true);
-
         }}
       />
 
       {loading && (
-
         <Box
           display="flex"
           justifyContent="center"
-          py={5}
+          py={8}
         >
           <CircularProgress />
         </Box>
-
       )}
 
-      {error && (
-
+      {!loading && error && (
         <Alert severity="error">
-
           {error}
-
         </Alert>
-
       )}
 
-      {!loading && !error && (
+      {!loading &&
+        !error &&
+        filteredReminders.length === 0 && (
+          <EmptyReminder />
+        )}
 
-        <ReminderGrid
-          reminders={filteredReminders}
-          onEdit={(reminder) => {
-
-            setEditingReminder(reminder);
-
-            setDialogOpen(true);
-
-          }}
-          onDelete={(reminder) => {
-
-            setSelectedReminder(reminder);
-
-            setDeleteDialogOpen(true);
-
-          }}
-          onComplete={(reminder) => {
-
-            markCompleted(reminder.id);
-
-          }}
-        />
-
-      )}
+      {!loading &&
+        !error &&
+        filteredReminders.length > 0 && (
+          <ReminderGrid
+            reminders={filteredReminders}
+            onEdit={(reminder) => {
+              setEditingReminder(
+                reminder
+              );
+              setDialogOpen(true);
+            }}
+            onDelete={(reminder) => {
+              setSelectedReminder(
+                reminder
+              );
+              setDeleteDialogOpen(
+                true
+              );
+            }}
+            onComplete={
+              handleComplete
+            }
+          />
+        )}
 
       <CreateReminderDialog
         open={dialogOpen}
         onClose={() => {
-
           setDialogOpen(false);
-
           setEditingReminder(null);
-
         }}
         onSave={handleSaveReminder}
         initialData={editingReminder}
@@ -176,17 +189,32 @@ export default function Reminders() {
         open={deleteDialogOpen}
         reminder={selectedReminder}
         onClose={() => {
-
           setDeleteDialogOpen(false);
-
           setSelectedReminder(null);
-
         }}
         onConfirm={handleDelete}
       />
 
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={3000}
+        onClose={() =>
+          setSnackbar((prev) => ({
+            ...prev,
+            open: false,
+          }))
+        }
+      >
+        <Alert
+          severity={
+            snackbar.severity
+          }
+          variant="filled"
+          sx={{ width: "100%" }}
+        >
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </Box>
-
   );
-
 }

@@ -2,6 +2,7 @@ import {
   createContext,
   useContext,
   useEffect,
+  useMemo,
   useState,
 } from "react";
 
@@ -16,94 +17,165 @@ import {
 const ReminderContext = createContext();
 
 export function ReminderProvider({ children }) {
-
   const [reminders, setReminders] = useState([]);
-
   const [loading, setLoading] = useState(false);
-
   const [error, setError] = useState("");
 
   const loadReminders = async () => {
-
     try {
-
       setLoading(true);
-
-      const data = await getReminders();
-
-      setReminders(data);
-
       setError("");
 
+      const data = await getReminders();
+      setReminders(data || []);
     } catch (err) {
-
       console.error(err);
-
       setError("Unable to load reminders.");
-
     } finally {
-
       setLoading(false);
-
     }
-
   };
 
   useEffect(() => {
-
     if (localStorage.getItem("token")) {
-
       loadReminders();
-
     }
-
   }, []);
 
   const addReminder = async (reminder) => {
+    try {
+      setLoading(true);
 
-    await createReminder(reminder);
+      const created = await createReminder(reminder);
 
-    await loadReminders();
+      if (created) {
+        setReminders((prev) => [created, ...prev]);
+      } else {
+        await loadReminders();
+      }
 
+      return {
+        success: true,
+        message: "Reminder created successfully.",
+      };
+    } catch (err) {
+      console.error(err);
+
+      return {
+        success: false,
+        message: "Failed to create reminder.",
+      };
+    } finally {
+      setLoading(false);
+    }
   };
 
   const editReminder = async (id, reminder) => {
+    try {
+      setLoading(true);
 
-    await updateReminder(id, reminder);
+      const updated = await updateReminder(id, reminder);
 
-    await loadReminders();
+      if (updated) {
+        setReminders((prev) =>
+          prev.map((item) =>
+            item.id === id ? updated : item
+          )
+        );
+      } else {
+        await loadReminders();
+      }
 
+      return {
+        success: true,
+        message: "Reminder updated successfully.",
+      };
+    } catch (err) {
+      console.error(err);
+
+      return {
+        success: false,
+        message: "Failed to update reminder.",
+      };
+    } finally {
+      setLoading(false);
+    }
   };
 
   const removeReminder = async (id) => {
+    try {
+      setLoading(true);
 
-    await deleteReminder(id);
+      await deleteReminder(id);
 
-    await loadReminders();
+      setReminders((prev) =>
+        prev.filter((item) => item.id !== id)
+      );
 
+      return {
+        success: true,
+        message: "Reminder deleted successfully.",
+      };
+    } catch (err) {
+      console.error(err);
+
+      return {
+        success: false,
+        message: "Failed to delete reminder.",
+      };
+    } finally {
+      setLoading(false);
+    }
   };
 
   const markCompleted = async (id) => {
+    try {
+      setLoading(true);
 
-    await completeReminder(id);
+      const updated = await completeReminder(id);
 
-    await loadReminders();
+      if (updated) {
+        setReminders((prev) =>
+          prev.map((item) =>
+            item.id === id ? updated : item
+          )
+        );
+      } else {
+        await loadReminders();
+      }
 
+      return {
+        success: true,
+        message: "Reminder marked as completed.",
+      };
+    } catch (err) {
+      console.error(err);
+
+      return {
+        success: false,
+        message: "Unable to complete reminder.",
+      };
+    } finally {
+      setLoading(false);
+    }
   };
 
+  const value = useMemo(
+    () => ({
+      reminders,
+      loading,
+      error,
+      loadReminders,
+      addReminder,
+      editReminder,
+      removeReminder,
+      markCompleted,
+    }),
+    [reminders, loading, error]
+  );
+
   return (
-    <ReminderContext.Provider
-      value={{
-        reminders,
-        loading,
-        error,
-        loadReminders,
-        addReminder,
-        editReminder,
-        removeReminder,
-        markCompleted,
-      }}
-    >
+    <ReminderContext.Provider value={value}>
       {children}
     </ReminderContext.Provider>
   );

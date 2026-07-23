@@ -13,12 +13,13 @@ import {
   ListItemText,
   Stack,
   Typography,
+  useMediaQuery,
+  useTheme,
 } from "@mui/material";
 
 import NotificationsActiveRoundedIcon from "@mui/icons-material/NotificationsActiveRounded";
 import AlarmRoundedIcon from "@mui/icons-material/AlarmRounded";
-import EventRoundedIcon from "@mui/icons-material/EventRounded";
-import AssignmentRoundedIcon from "@mui/icons-material/AssignmentRounded";
+import CalendarTodayRoundedIcon from "@mui/icons-material/CalendarTodayRounded";
 
 import { useReminders } from "../../context/ReminderContext";
 
@@ -26,23 +27,19 @@ const getPriorityColor = (priority) => {
   switch (priority?.toUpperCase()) {
     case "HIGH":
       return "error";
-
     case "MEDIUM":
       return "warning";
-
     case "LOW":
       return "success";
-
     default:
       return "default";
   }
 };
 
-const getReminderIcon = () => {
-  return <AlarmRoundedIcon />;
-};
-
 export default function ReminderCard() {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+
   const {
     reminders,
     loading,
@@ -54,17 +51,16 @@ export default function ReminderCard() {
       <Card
         elevation={0}
         sx={{
-          borderRadius: 4,
-          border: 1,
-          borderColor: "divider",
           height: "100%",
+          borderRadius: 4,
+          border: `1px solid ${theme.palette.divider}`,
         }}
       >
         <CardContent>
           <Stack
             justifyContent="center"
             alignItems="center"
-            sx={{ py: 6 }}
+            sx={{ py: 8 }}
           >
             <CircularProgress />
           </Stack>
@@ -89,13 +85,22 @@ export default function ReminderCard() {
     <Card
       elevation={0}
       sx={{
-        borderRadius: 4,
-        border: 1,
-        borderColor: "divider",
         height: "100%",
+        borderRadius: 4,
+        border: `1px solid ${theme.palette.divider}`,
+        bgcolor: "background.paper",
       }}
     >
-      <CardContent>
+      <CardContent
+        sx={{
+          p: {
+            xs: 2,
+            md: 3,
+          },
+        }}
+      >
+        {/* Header */}
+
         <Stack
           direction="row"
           spacing={1}
@@ -115,16 +120,24 @@ export default function ReminderCard() {
         {upcomingReminders.length === 0 ? (
           <Stack
             alignItems="center"
+            justifyContent="center"
             spacing={2}
-            sx={{ py: 5 }}
+            sx={{
+              py: 6,
+            }}
           >
             <NotificationsActiveRoundedIcon
               color="disabled"
-              sx={{ fontSize: 48 }}
+              sx={{
+                fontSize: 54,
+              }}
             />
 
-            <Typography color="text.secondary">
-              No reminders scheduled.
+            <Typography
+              color="text.secondary"
+              textAlign="center"
+            >
+              No upcoming reminders.
             </Typography>
           </Stack>
         ) : (
@@ -135,49 +148,99 @@ export default function ReminderCard() {
                   <ListItem
                     disableGutters
                     sx={{
-                      py: 1.5,
+                      py: 2,
+                      alignItems: "flex-start",
                     }}
                   >
                     <ListItemAvatar>
                       <Avatar
                         sx={{
-                          bgcolor: "action.hover",
+                          bgcolor: "primary.light",
                           color: "primary.main",
+                          width: isMobile ? 42 : 48,
+                          height: isMobile ? 42 : 48,
                         }}
                       >
-                        {getReminderIcon()}
+                        <AlarmRoundedIcon />
                       </Avatar>
                     </ListItemAvatar>
 
-                    <ListItemText
-                      primary={
-                        <Typography
-                          fontWeight={600}
-                        >
-                          {reminder.title}
-                        </Typography>
-                      }
-                      secondary={`${reminder.reminderDate} ${
-                        reminder.reminderTime || ""
-                      }`}
-                    />
+                    <Box sx={{ flex: 1 }}>
+                      <Typography
+                        fontWeight={600}
+                        sx={{
+                          fontSize: {
+                            xs: 15,
+                            md: 16,
+                          },
+                        }}
+                      >
+                        {reminder.title}
+                      </Typography>
 
-                    <Chip
-                      size="small"
-                      label={reminder.priority}
-                      color={getPriorityColor(
-                        reminder.priority
-                      )}
-                    />
+                      <Stack
+                        direction="row"
+                        spacing={1}
+                        flexWrap="wrap"
+                        useFlexGap
+                        mt={1}
+                      >
+                        <Chip
+                          size="small"
+                          color={getPriorityColor(
+                            reminder.priority
+                          )}
+                          label={reminder.priority}
+                        />
+
+                        <Chip
+                          size="small"
+                          variant="outlined"
+                          icon={
+                            <CalendarTodayRoundedIcon />
+                          }
+                          label={`${reminder.reminderDate}${
+                            reminder.reminderTime
+                              ? ` • ${reminder.reminderTime}`
+                              : ""
+                          }`}
+                        />
+                      </Stack>
+                    </Box>
                   </ListItem>
 
                   {index !==
-                    upcomingReminders.length -
-                      1 && <Divider />}
+                    upcomingReminders.length - 1 && (
+                    <Divider />
+                  )}
                 </Box>
               )
             )}
           </List>
+        )}
+
+        {/* Footer */}
+
+        {upcomingReminders.length > 0 && (
+          <Stack
+            direction="row"
+            justifyContent="space-between"
+            mt={3}
+          >
+            <Typography
+              variant="body2"
+              color="text.secondary"
+            >
+              Total Upcoming
+            </Typography>
+
+            <Typography
+              fontWeight={700}
+              color="primary.main"
+            >
+              {upcomingReminders.length}
+            </Typography>
+          </Stack>
         )}
       </CardContent>
     </Card>

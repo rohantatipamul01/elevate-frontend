@@ -9,7 +9,10 @@ import {
   ListItemText,
   Toolbar,
   Typography,
+  useTheme,
 } from "@mui/material";
+
+import { alpha } from "@mui/material/styles";
 
 import DashboardRoundedIcon from "@mui/icons-material/DashboardRounded";
 import AssignmentRoundedIcon from "@mui/icons-material/AssignmentRounded";
@@ -62,6 +65,8 @@ const menuItems = [
 ];
 
 export default function Sidebar({ onNavigate }) {
+  const theme = useTheme();
+
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -87,23 +92,28 @@ export default function Sidebar({ onNavigate }) {
       }}
     >
       {/* Logo */}
+
       <Toolbar
         sx={{
           minHeight: 72,
           display: "flex",
           alignItems: "center",
           gap: 1.5,
+          px: 3,
         }}
       >
         <TrendingUpRoundedIcon
           color="primary"
           sx={{
-            fontSize: 34,
+            fontSize: 36,
           }}
         />
 
         <Box>
-          <Typography variant="h6" fontWeight={700}>
+          <Typography
+            variant="h6"
+            fontWeight={700}
+          >
             Elevate
           </Typography>
 
@@ -119,67 +129,83 @@ export default function Sidebar({ onNavigate }) {
       <Divider />
 
       {/* Navigation */}
+
       <List
         sx={{
+          flexGrow: 1,
           px: 2,
           py: 2,
-          flexGrow: 1,
         }}
       >
-        {menuItems.map((item) => (
-          <ListItemButton
-            key={item.title}
-            component={Link}
-            to={item.path}
-            selected={location.pathname === item.path}
-            onClick={onNavigate}
-            sx={{
-              mb: 1,
-              py: 1.2,
-              borderRadius: 2,
+        {menuItems.map((item) => {
+          const selected =
+            location.pathname === item.path;
 
-              "& .MuiListItemIcon-root": {
-                minWidth: 42,
-              },
+          return (
+            <ListItemButton
+              key={item.title}
+              component={Link}
+              to={item.path}
+              selected={selected}
+              onClick={onNavigate}
+              sx={{
+                mb: 1,
+                borderRadius: 3,
+                py: 1.3,
+                px: 2,
 
-              "&.Mui-selected": {
-                bgcolor: "primary.main",
-                color: "primary.contrastText",
-              },
+                transition: "all .2s ease",
 
-              "&.Mui-selected:hover": {
-                bgcolor: "primary.dark",
-              },
+                "& .MuiListItemIcon-root": {
+                  minWidth: 42,
+                  color: selected
+                    ? "primary.contrastText"
+                    : "text.secondary",
+                },
 
-              "&.Mui-selected .MuiListItemIcon-root": {
-                color: "primary.contrastText",
-              },
+                "& .MuiListItemText-primary": {
+                  fontWeight: selected ? 700 : 600,
+                },
 
-              "&:hover": {
-                bgcolor: "action.hover",
-              },
-            }}
-          >
-            <ListItemIcon>{item.icon}</ListItemIcon>
+                "&.Mui-selected": {
+                  bgcolor: "primary.main",
+                  color: "primary.contrastText",
 
-            <ListItemText
-              primary={item.title}
-              primaryTypographyProps={{
-                fontWeight: 600,
+                  boxShadow: `0 8px 20px ${alpha(
+                    theme.palette.primary.main,
+                    0.30
+                  )}`,
+                },
+
+                "&.Mui-selected:hover": {
+                  bgcolor: "primary.dark",
+                },
+
+                "&:hover": {
+                  bgcolor: "action.hover",
+                  transform: "translateX(4px)",
+                },
               }}
-            />
-          </ListItemButton>
-        ))}
+            >
+              <ListItemIcon>
+                {item.icon}
+              </ListItemIcon>
+
+              <ListItemText primary={item.title} />
+            </ListItemButton>
+          );
+        })}
       </List>
 
       <Divider />
 
       {/* Logout */}
-      <Box sx={{ px: 2, py: 1 }}>
+
+      <Box sx={{ px: 2, py: 1.5 }}>
         <ListItemButton
           onClick={handleLogout}
           sx={{
-            borderRadius: 2,
+            borderRadius: 3,
             color: "error.main",
 
             "& .MuiListItemIcon-root": {
@@ -188,7 +214,10 @@ export default function Sidebar({ onNavigate }) {
             },
 
             "&:hover": {
-              bgcolor: "error.lighter",
+              bgcolor: alpha(
+                theme.palette.error.main,
+                0.08
+              ),
             },
           }}
         >
@@ -207,18 +236,21 @@ export default function Sidebar({ onNavigate }) {
 
       <Divider />
 
-      {/* Bottom Card */}
+      {/* Motivation Card */}
+
       <Box sx={{ p: 2 }}>
         <Box
           sx={{
-            bgcolor: "action.hover",
+            p: 2.5,
             borderRadius: 3,
-            p: 2,
+            bgcolor: "action.hover",
+            border: `1px solid ${theme.palette.divider}`,
           }}
         >
           <Typography
             variant="subtitle2"
             fontWeight={700}
+            gutterBottom
           >
             Stay Consistent 🚀
           </Typography>
@@ -226,9 +258,9 @@ export default function Sidebar({ onNavigate }) {
           <Typography
             variant="body2"
             color="text.secondary"
-            sx={{ mt: 1 }}
           >
-            Complete your daily tasks and build your streak every day.
+            Complete your daily tasks, maintain your habits,
+            and keep building your streak every day.
           </Typography>
         </Box>
       </Box>

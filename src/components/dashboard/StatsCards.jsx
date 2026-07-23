@@ -6,6 +6,7 @@ import {
   Grid,
   Stack,
   Typography,
+  useTheme,
 } from "@mui/material";
 
 import AssignmentTurnedInRoundedIcon from "@mui/icons-material/AssignmentTurnedInRounded";
@@ -16,6 +17,7 @@ import EmojiEventsRoundedIcon from "@mui/icons-material/EmojiEventsRounded";
 import { useDashboard } from "../../context/DashboardContext";
 
 export default function StatsCards() {
+  const theme = useTheme();
 
   const {
     dashboard,
@@ -36,11 +38,7 @@ export default function StatsCards() {
   }
 
   if (error) {
-    return (
-      <Alert severity="error">
-        {error}
-      </Alert>
-    );
+    return <Alert severity="error">{error}</Alert>;
   }
 
   const stats = [
@@ -48,21 +46,21 @@ export default function StatsCards() {
       title: "Completed Tasks",
       value: dashboard.completedTasks,
       subtitle: `${dashboard.completedTasks} completed`,
-      icon: <AssignmentTurnedInRoundedIcon fontSize="large" />,
+      icon: <AssignmentTurnedInRoundedIcon />,
       color: "#22C55E",
     },
     {
       title: "Current Streak",
       value: `${dashboard.streak} Days`,
       subtitle: "Keep it going!",
-      icon: <LocalFireDepartmentRoundedIcon fontSize="large" />,
+      icon: <LocalFireDepartmentRoundedIcon />,
       color: "#F97316",
     },
     {
       title: "Pending Tasks",
       value: dashboard.pendingTasks,
       subtitle: `${dashboard.dueToday} due today`,
-      icon: <PendingActionsRoundedIcon fontSize="large" />,
+      icon: <PendingActionsRoundedIcon />,
       color: "#F59E0B",
     },
     {
@@ -76,7 +74,7 @@ export default function StatsCards() {
           : dashboard.productivity >= 40
           ? "Average"
           : "Needs Improvement",
-      icon: <EmojiEventsRoundedIcon fontSize="large" />,
+      icon: <EmojiEventsRoundedIcon />,
       color: "#4F46E5",
     },
   ];
@@ -91,17 +89,26 @@ export default function StatsCards() {
           <Card
             elevation={0}
             sx={{
-              border: "1px solid #E2E8F0",
+              height: "100%",
               borderRadius: 4,
-              transition: "all .25s ease",
+              border: `1px solid ${theme.palette.divider}`,
+              bgcolor: "background.paper",
+              transition: "all .25s",
+
               "&:hover": {
                 transform: "translateY(-4px)",
-                boxShadow:
-                  "0 12px 24px rgba(15,23,42,0.08)",
+                boxShadow: theme.shadows[6],
               },
             }}
           >
-            <CardContent>
+            <CardContent
+              sx={{
+                p: {
+                  xs: 2,
+                  md: 3,
+                },
+              }}
+            >
               <Stack
                 direction="row"
                 justifyContent="space-between"
@@ -116,8 +123,14 @@ export default function StatsCards() {
                   </Typography>
 
                   <Typography
-                    variant="h4"
                     fontWeight={700}
+                    sx={{
+                      fontSize: {
+                        xs: "1.7rem",
+                        sm: "2rem",
+                        md: "2.3rem",
+                      },
+                    }}
                   >
                     {item.value}
                   </Typography>
@@ -137,11 +150,24 @@ export default function StatsCards() {
                   justifyContent="center"
                   alignItems="center"
                   sx={{
-                    width: 64,
-                    height: 64,
+                    width: {
+                      xs: 52,
+                      md: 64,
+                    },
+                    height: {
+                      xs: 52,
+                      md: 64,
+                    },
                     borderRadius: "50%",
-                    backgroundColor: `${item.color}15`,
+                    bgcolor: `${item.color}15`,
                     color: item.color,
+
+                    "& svg": {
+                      fontSize: {
+                        xs: 28,
+                        md: 34,
+                      },
+                    },
                   }}
                 >
                   {item.icon}

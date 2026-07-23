@@ -12,6 +12,8 @@ import {
   ListItemText,
   Stack,
   Typography,
+  useMediaQuery,
+  useTheme,
 } from "@mui/material";
 
 import HistoryRoundedIcon from "@mui/icons-material/HistoryRounded";
@@ -24,6 +26,8 @@ import { useTasks } from "../../context/TaskContext";
 import { useReminders } from "../../context/ReminderContext";
 
 export default function RecentActivity() {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   const {
     tasks,
@@ -43,15 +47,14 @@ export default function RecentActivity() {
         elevation={0}
         sx={{
           borderRadius: 4,
-          border: 1,
-          borderColor: "divider",
+          border: `1px solid ${theme.palette.divider}`,
         }}
       >
         <CardContent>
           <Stack
-            alignItems="center"
             justifyContent="center"
-            sx={{ py: 6 }}
+            alignItems="center"
+            sx={{ py: 8 }}
           >
             <CircularProgress />
           </Stack>
@@ -109,12 +112,21 @@ export default function RecentActivity() {
     <Card
       elevation={0}
       sx={{
+        height: "100%",
         borderRadius: 4,
-        border: 1,
-        borderColor: "divider",
+        border: `1px solid ${theme.palette.divider}`,
+        bgcolor: "background.paper",
       }}
     >
-      <CardContent>
+      <CardContent
+        sx={{
+          p: {
+            xs: 2,
+            md: 3,
+          },
+        }}
+      >
+        {/* Header */}
 
         <Stack
           direction="row"
@@ -134,51 +146,67 @@ export default function RecentActivity() {
 
         {activities.length === 0 ? (
           <Stack
+            justifyContent="center"
             alignItems="center"
             spacing={2}
-            sx={{ py: 5 }}
+            sx={{
+              py: 6,
+            }}
           >
             <LocalFireDepartmentRoundedIcon
               color="disabled"
-              sx={{ fontSize: 48 }}
+              sx={{
+                fontSize: 54,
+              }}
             />
 
-            <Typography color="text.secondary">
-              No recent activity.
+            <Typography
+              color="text.secondary"
+              textAlign="center"
+            >
+              No recent activity found.
             </Typography>
           </Stack>
         ) : (
           <List disablePadding>
-
             {activities.map((activity, index) => (
-
               <Box key={activity.id}>
-
                 <ListItem
                   disableGutters
-                  sx={{ py: 1.5 }}
+                  alignItems="flex-start"
+                  sx={{
+                    py: 2,
+                  }}
                 >
                   <ListItemAvatar>
-
                     <Avatar
                       sx={{
                         bgcolor: "action.hover",
                         color: activity.color,
+                        width: isMobile ? 42 : 48,
+                        height: isMobile ? 42 : 48,
                       }}
                     >
                       {activity.icon}
                     </Avatar>
-
                   </ListItemAvatar>
 
                   <ListItemText
                     primary={
-                      <Typography fontWeight={600}>
+                      <Typography
+                        fontWeight={600}
+                        sx={{
+                          fontSize: {
+                            xs: 15,
+                            md: 16,
+                          },
+                        }}
+                      >
                         {activity.title}
                       </Typography>
                     }
                     secondary={
-                      <>
+                      <Stack spacing={0.5} mt={0.5}>
                         <Typography
                           variant="body2"
                           color="text.secondary"
@@ -196,24 +224,40 @@ export default function RecentActivity() {
                               ).toLocaleString()
                             : ""}
                         </Typography>
-                      </>
+                      </Stack>
                     }
                   />
-
                 </ListItem>
 
-                {index !==
-                  activities.length - 1 && (
+                {index !== activities.length - 1 && (
                   <Divider />
                 )}
-
               </Box>
-
             ))}
-
           </List>
         )}
 
+        {activities.length > 0 && (
+          <Stack
+            direction="row"
+            justifyContent="space-between"
+            mt={3}
+          >
+            <Typography
+              variant="body2"
+              color="text.secondary"
+            >
+              Recent Events
+            </Typography>
+
+            <Typography
+              fontWeight={700}
+              color="primary.main"
+            >
+              {activities.length}
+            </Typography>
+          </Stack>
+        )}
       </CardContent>
     </Card>
   );

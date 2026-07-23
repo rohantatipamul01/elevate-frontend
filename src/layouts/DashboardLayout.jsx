@@ -27,7 +27,7 @@ export default function DashboardLayout() {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   const handleDrawerToggle = () => {
-    setMobileOpen(!mobileOpen);
+    setMobileOpen((prev) => !prev);
   };
 
   const drawer = (
@@ -41,57 +41,73 @@ export default function DashboardLayout() {
   );
 
   return (
-    <Box sx={{ display: "flex", minHeight: "100vh" }}>
+    <Box
+      sx={{
+        display: "flex",
+        minHeight: "100vh",
+        bgcolor: "background.default",
+      }}
+    >
       <CssBaseline />
 
       {/* Mobile App Bar */}
+
       {isMobile && (
         <AppBar
           position="fixed"
           elevation={0}
+          color="inherit"
           sx={{
-            width: "100%",
             bgcolor: "background.paper",
             color: "text.primary",
-            borderBottom: "1px solid #E2E8F0",
+            borderBottom: `1px solid ${theme.palette.divider}`,
+            backdropFilter: "blur(12px)",
           }}
         >
           <Toolbar>
             <IconButton
               edge="start"
+              color="inherit"
               onClick={handleDrawerToggle}
               sx={{ mr: 2 }}
             >
               <MenuIcon />
             </IconButton>
 
-            <Typography variant="h6" fontWeight={700}>
+            <Typography
+              variant="h6"
+              fontWeight={700}
+            >
               Elevate
             </Typography>
           </Toolbar>
         </AppBar>
       )}
 
-      {/* Desktop Sidebar */}
+      {/* Desktop Drawer */}
+
       {!isMobile && (
         <Drawer
           variant="permanent"
+          open
           sx={{
             width: drawerWidth,
             flexShrink: 0,
+
             "& .MuiDrawer-paper": {
               width: drawerWidth,
               boxSizing: "border-box",
-              borderRight: "1px solid #E2E8F0",
+              bgcolor: "background.paper",
+              borderRight: `1px solid ${theme.palette.divider}`,
             },
           }}
-          open
         >
           {drawer}
         </Drawer>
       )}
 
-      {/* Mobile Sidebar */}
+      {/* Mobile Drawer */}
+
       {isMobile && (
         <Drawer
           variant="temporary"
@@ -103,6 +119,7 @@ export default function DashboardLayout() {
           sx={{
             "& .MuiDrawer-paper": {
               width: drawerWidth,
+              bgcolor: "background.paper",
             },
           }}
         >
@@ -110,21 +127,33 @@ export default function DashboardLayout() {
         </Drawer>
       )}
 
-      {/* Main Content */}
+      {/* Main */}
+
       <Box
         component="main"
         sx={{
           flexGrow: 1,
-          backgroundColor: "#F5F7FB",
           minHeight: "100vh",
+          bgcolor: "background.default",
+          transition: "background-color .3s",
         }}
       >
         {!isMobile && <Navbar />}
 
         <Box
           sx={{
-            p: 4,
-            mt: isMobile ? 8 : 10,
+            p: {
+              xs: 2,
+              sm: 3,
+              md: 4,
+            },
+
+            mt: {
+              xs: 8,
+              md: 10,
+            },
+
+            width: "100%",
           }}
         >
           <Outlet />

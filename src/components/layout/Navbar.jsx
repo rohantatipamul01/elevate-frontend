@@ -15,6 +15,8 @@ import {
   Stack,
   Toolbar,
   Typography,
+  useMediaQuery,
+  useTheme,
 } from "@mui/material";
 
 import SearchRoundedIcon from "@mui/icons-material/SearchRounded";
@@ -29,8 +31,13 @@ import DarkModeRoundedIcon from "@mui/icons-material/DarkModeRounded";
 import { useAuth } from "../../context/AuthContext";
 import { useColorMode } from "../../context/ColorModeContext";
 
+const drawerWidth = 260;
+
 export default function Navbar() {
   const navigate = useNavigate();
+
+  const theme = useTheme();
+  const isTablet = useMediaQuery(theme.breakpoints.down("lg"));
 
   const { user, logout } = useAuth();
   const { mode, toggleColorMode } = useColorMode();
@@ -56,7 +63,7 @@ export default function Navbar() {
   const initials = user?.fullName
     ? user.fullName
         .split(" ")
-        .map((name) => name[0])
+        .map((n) => n[0])
         .join("")
         .substring(0, 2)
         .toUpperCase()
@@ -68,26 +75,28 @@ export default function Navbar() {
       elevation={0}
       color="inherit"
       sx={{
-        ml: { md: "260px" },
+        ml: { md: `${drawerWidth}px` },
         width: {
-          md: "calc(100% - 260px)",
+          md: `calc(100% - ${drawerWidth}px)`,
         },
         bgcolor: "background.paper",
-        borderBottom: 1,
-        borderColor: "divider",
+        borderBottom: `1px solid ${theme.palette.divider}`,
+        backdropFilter: "blur(12px)",
+        transition: "all .25s ease",
       }}
     >
       <Toolbar
         sx={{
           justifyContent: "space-between",
-          gap: 3,
+          gap: 2,
+          minHeight: 72,
         }}
       >
         {/* Left */}
 
         <Box>
           <Typography
-            variant="h5"
+            variant={isTablet ? "h6" : "h5"}
             fontWeight={700}
           >
             Welcome back 👋
@@ -105,7 +114,7 @@ export default function Navbar() {
 
         <Stack
           direction="row"
-          spacing={2}
+          spacing={1.5}
           alignItems="center"
         >
           {/* Search */}
@@ -115,23 +124,24 @@ export default function Navbar() {
             sx={{
               display: {
                 xs: "none",
-                md: "flex",
+                lg: "flex",
               },
               alignItems: "center",
               px: 2,
-              py: 0.5,
-              width: 300,
-              border: 1,
-              borderColor: "divider",
+              py: 0.6,
+              width: 320,
+              bgcolor: "background.default",
+              border: `1px solid ${theme.palette.divider}`,
               borderRadius: 3,
             }}
           >
             <SearchRoundedIcon
               color="action"
+              fontSize="small"
             />
 
             <InputBase
-              placeholder="Search..."
+              placeholder="Search tasks..."
               sx={{
                 ml: 1,
                 flex: 1,
@@ -139,10 +149,17 @@ export default function Navbar() {
             />
           </Paper>
 
-          {/* Dark Mode */}
+          {/* Theme */}
 
           <IconButton
+            color="inherit"
             onClick={toggleColorMode}
+            sx={{
+              bgcolor: "action.hover",
+              "&:hover": {
+                bgcolor: "action.selected",
+              },
+            }}
           >
             {mode === "light" ? (
               <DarkModeRoundedIcon />
@@ -151,9 +168,17 @@ export default function Navbar() {
             )}
           </IconButton>
 
-          {/* Notification */}
+          {/* Notifications */}
 
-          <IconButton>
+          <IconButton
+            color="inherit"
+            sx={{
+              bgcolor: "action.hover",
+              "&:hover": {
+                bgcolor: "action.selected",
+              },
+            }}
+          >
             <Badge
               badgeContent={3}
               color="error"
@@ -168,17 +193,25 @@ export default function Navbar() {
             direction="row"
             spacing={1.5}
             alignItems="center"
+            onClick={handleMenuOpen}
             sx={{
               cursor: "pointer",
+              borderRadius: 3,
+              px: 1,
+              py: 0.5,
+              transition: ".2s",
+              "&:hover": {
+                bgcolor: "action.hover",
+              },
             }}
-            onClick={handleMenuOpen}
           >
             <Avatar
               src={user?.profileImage || ""}
               sx={{
-                bgcolor: "primary.main",
                 width: 42,
                 height: 42,
+                bgcolor: "primary.main",
+                fontWeight: 700,
               }}
             >
               {initials}
@@ -188,7 +221,7 @@ export default function Navbar() {
               sx={{
                 display: {
                   xs: "none",
-                  sm: "block",
+                  md: "block",
                 },
               }}
             >
@@ -207,15 +240,29 @@ export default function Navbar() {
               </Typography>
             </Box>
 
-            <KeyboardArrowDownRoundedIcon />
+            <KeyboardArrowDownRoundedIcon
+              sx={{
+                display: {
+                  xs: "none",
+                  md: "block",
+                },
+              }}
+            />
           </Stack>
 
-          {/* Menu */}
+          {/* User Menu */}
 
           <Menu
             anchorEl={anchorEl}
             open={open}
             onClose={handleMenuClose}
+            PaperProps={{
+              sx: {
+                mt: 1,
+                borderRadius: 3,
+                minWidth: 200,
+              },
+            }}
           >
             <MenuItem
               onClick={() => {
@@ -224,7 +271,7 @@ export default function Navbar() {
               }}
             >
               <PersonRoundedIcon
-                sx={{ mr: 1 }}
+                sx={{ mr: 1.5 }}
                 fontSize="small"
               />
               Profile
@@ -237,7 +284,7 @@ export default function Navbar() {
               }}
             >
               <SettingsRoundedIcon
-                sx={{ mr: 1 }}
+                sx={{ mr: 1.5 }}
                 fontSize="small"
               />
               Settings
@@ -245,11 +292,9 @@ export default function Navbar() {
 
             <Divider />
 
-            <MenuItem
-              onClick={handleLogout}
-            >
+            <MenuItem onClick={handleLogout}>
               <LogoutRoundedIcon
-                sx={{ mr: 1 }}
+                sx={{ mr: 1.5 }}
                 fontSize="small"
               />
               Logout

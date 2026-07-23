@@ -13,9 +13,12 @@ import {
   ListItemText,
   Stack,
   Typography,
+  useMediaQuery,
+  useTheme,
 } from "@mui/material";
 
 import AssignmentRoundedIcon from "@mui/icons-material/AssignmentRounded";
+import CalendarTodayRoundedIcon from "@mui/icons-material/CalendarTodayRounded";
 
 import { useTasks } from "../../context/TaskContext";
 
@@ -23,19 +26,19 @@ const getPriorityColor = (priority) => {
   switch (priority) {
     case "HIGH":
       return "error";
-
     case "MEDIUM":
       return "warning";
-
     case "LOW":
       return "success";
-
     default:
       return "default";
   }
 };
 
 export default function TaskListCard() {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+
   const {
     tasks,
     loading,
@@ -49,15 +52,15 @@ export default function TaskListCard() {
         elevation={0}
         sx={{
           borderRadius: 4,
-          border: "1px solid #E2E8F0",
+          border: `1px solid ${theme.palette.divider}`,
           height: "100%",
         }}
       >
         <CardContent>
           <Stack
-            alignItems="center"
             justifyContent="center"
-            sx={{ py: 6 }}
+            alignItems="center"
+            sx={{ py: 8 }}
           >
             <CircularProgress />
           </Stack>
@@ -67,20 +70,15 @@ export default function TaskListCard() {
   }
 
   if (error) {
-    return (
-      <Alert severity="error">
-        {error}
-      </Alert>
-    );
+    return <Alert severity="error">{error}</Alert>;
   }
 
   const latestTasks = [...tasks]
     .sort(
       (a, b) =>
-        new Date(a.createdAt) -
-        new Date(b.createdAt)
+        new Date(b.createdAt) -
+        new Date(a.createdAt)
     )
-    .reverse()
     .slice(0, 5);
 
   const completedTasks = latestTasks.filter(
@@ -88,20 +86,30 @@ export default function TaskListCard() {
   ).length;
 
   const progress =
-    latestTasks.length > 0
-      ? (completedTasks / latestTasks.length) * 100
-      : 0;
+    latestTasks.length === 0
+      ? 0
+      : (completedTasks / latestTasks.length) * 100;
 
   return (
     <Card
       elevation={0}
       sx={{
-        borderRadius: 4,
-        border: "1px solid #E2E8F0",
         height: "100%",
+        borderRadius: 4,
+        border: `1px solid ${theme.palette.divider}`,
+        bgcolor: "background.paper",
       }}
     >
-      <CardContent>
+      <CardContent
+        sx={{
+          p: {
+            xs: 2,
+            md: 3,
+          },
+        }}
+      >
+        {/* Header */}
+
         <Stack
           direction="row"
           justifyContent="space-between"
@@ -127,16 +135,18 @@ export default function TaskListCard() {
             variant="body2"
             color="text.secondary"
           >
-            {completedTasks}/{latestTasks.length} Completed
+            {completedTasks}/{latestTasks.length}
           </Typography>
         </Stack>
+
+        {/* Progress */}
 
         <LinearProgress
           variant="determinate"
           value={progress}
           sx={{
             height: 8,
-            borderRadius: 5,
+            borderRadius: 10,
             mb: 3,
           }}
         />
@@ -147,7 +157,7 @@ export default function TaskListCard() {
             color="text.secondary"
             sx={{ py: 5 }}
           >
-            No tasks available.
+            No recent tasks.
           </Typography>
         ) : (
           <List disablePadding>
@@ -156,7 +166,8 @@ export default function TaskListCard() {
                 <ListItem
                   disablePadding
                   sx={{
-                    py: 1.5,
+                    py: 2,
+                    alignItems: "flex-start",
                   }}
                 >
                   <Checkbox
@@ -166,48 +177,90 @@ export default function TaskListCard() {
                         completeTask(task.id);
                       }
                     }}
+                    sx={{
+                      mt: 0.5,
+                    }}
                   />
 
-                  <ListItemText
-                    primary={
-                      <Typography
-                        fontWeight={600}
-                        sx={{
-                          textDecoration:
-                            task.completed
-                              ? "line-through"
-                              : "none",
-                        }}
-                      >
-                        {task.title}
-                      </Typography>
-                    }
-                    secondary={
-                      task.dueDate
-                        ? `Due: ${new Date(
-                            task.dueDate
-                          ).toLocaleDateString()}`
-                        : "No Due Date"
-                    }
-                  />
+                  <Box
+                    sx={{
+                      flex: 1,
+                    }}
+                  >
+                    <Typography
+                      fontWeight={600}
+                      sx={{
+                        fontSize: {
+                          xs: 15,
+                          md: 16,
+                        },
+                        textDecoration: task.completed
+                          ? "line-through"
+                          : "none",
+                      }}
+                    >
+                      {task.title}
+                    </Typography>
 
-                  <Chip
-                    label={task.priority}
-                    color={getPriorityColor(
-                      task.priority
-                    )}
-                    size="small"
-                  />
+                    <Stack
+                      direction="row"
+                      spacing={1}
+                      flexWrap="wrap"
+                      useFlexGap
+                      mt={1}
+                    >
+                      <Chip
+                        size="small"
+                        color={getPriorityColor(task.priority)}
+                        label={task.priority}
+                      />
+
+                      <Chip
+                        size="small"
+                        variant="outlined"
+                        icon={<CalendarTodayRoundedIcon />}
+                        label={
+                          task.dueDate
+                            ? new Date(
+                                task.dueDate
+                              ).toLocaleDateString()
+                            : "No Due Date"
+                        }
+                      />
+                    </Stack>
+                  </Box>
                 </ListItem>
 
-                {index !==
-                  latestTasks.length - 1 && (
+                {index !== latestTasks.length - 1 && (
                   <Divider />
                 )}
               </Box>
             ))}
           </List>
         )}
+
+        {/* Footer */}
+
+        <Stack
+          direction={isMobile ? "column" : "row"}
+          justifyContent="space-between"
+          mt={3}
+          spacing={1}
+        >
+          <Typography
+            variant="body2"
+            color="text.secondary"
+          >
+            Progress
+          </Typography>
+
+          <Typography
+            fontWeight={700}
+            color="primary.main"
+          >
+            {Math.round(progress)}%
+          </Typography>
+        </Stack>
       </CardContent>
     </Card>
   );

@@ -10,39 +10,49 @@ import RecentActivity from "../components/dashboard/RecentActivity";
 
 export default function Dashboard() {
   return (
-    <Box>
+    <Box
+      sx={{
+        width: "100%",
+        p: {
+          xs: 2,
+          sm: 3,
+          md: 4,
+        },
+      }}
+    >
       <Grid container spacing={3}>
         {/* Welcome */}
-        <Grid size={12}>
+        <Grid size={{ xs: 12 }}>
           <WelcomeCard />
         </Grid>
 
         {/* KPI Cards */}
-        <Grid size={12}>
+        <Grid size={{ xs: 12 }}>
           <StatsCards />
         </Grid>
 
-        {/* Tasks & Habits */}
+        {/* Tasks */}
         <Grid size={{ xs: 12, lg: 8 }}>
           <TaskListCard />
         </Grid>
 
+        {/* Habits */}
         <Grid size={{ xs: 12, lg: 4 }}>
           <HabitCard />
         </Grid>
 
-        {/* Productivity Chart */}
+        {/* Chart */}
         <Grid size={{ xs: 12, lg: 8 }}>
           <ProductivityChart />
         </Grid>
 
-        {/* Upcoming Reminders */}
+        {/* Reminders */}
         <Grid size={{ xs: 12, lg: 4 }}>
           <ReminderCard />
         </Grid>
 
-        {/* Recent Activity */}
-        <Grid size={12}>
+        {/* Activity */}
+        <Grid size={{ xs: 12 }}>
           <RecentActivity />
         </Grid>
       </Grid>

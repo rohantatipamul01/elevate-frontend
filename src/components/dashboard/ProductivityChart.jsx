@@ -5,6 +5,8 @@ import {
   CircularProgress,
   Stack,
   Typography,
+  useMediaQuery,
+  useTheme,
 } from "@mui/material";
 
 import TrendingUpRoundedIcon from "@mui/icons-material/TrendingUpRounded";
@@ -22,20 +24,18 @@ import {
 import { useDashboard } from "../../context/DashboardContext";
 
 export default function ProductivityChart() {
-  const {
-    dashboard,
-    loading,
-    error,
-  } = useDashboard();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+
+  const { dashboard, loading, error } = useDashboard();
 
   if (loading) {
     return (
       <Card
         elevation={0}
         sx={{
-          border: "1px solid #E2E8F0",
           borderRadius: 4,
-          height: "100%",
+          border: `1px solid ${theme.palette.divider}`,
         }}
       >
         <CardContent>
@@ -52,11 +52,7 @@ export default function ProductivityChart() {
   }
 
   if (error) {
-    return (
-      <Alert severity="error">
-        {error}
-      </Alert>
-    );
+    return <Alert severity="error">{error}</Alert>;
   }
 
   const productivityData = [
@@ -73,16 +69,24 @@ export default function ProductivityChart() {
     <Card
       elevation={0}
       sx={{
-        border: "1px solid #E2E8F0",
         borderRadius: 4,
+        border: `1px solid ${theme.palette.divider}`,
+        bgcolor: "background.paper",
         height: "100%",
       }}
     >
-      <CardContent>
+      <CardContent
+        sx={{
+          p: {
+            xs: 2,
+            md: 3,
+          },
+        }}
+      >
         <Stack
           direction="row"
-          spacing={1}
           alignItems="center"
+          spacing={1}
           mb={3}
         >
           <TrendingUpRoundedIcon color="primary" />
@@ -95,9 +99,11 @@ export default function ProductivityChart() {
           </Typography>
 
           <Typography
-            variant="body2"
-            color="text.secondary"
-            sx={{ ml: "auto" }}
+            sx={{
+              ml: "auto",
+              fontWeight: 600,
+              color: "primary.main",
+            }}
           >
             {Math.round(dashboard.productivity)}%
           </Typography>
@@ -105,9 +111,17 @@ export default function ProductivityChart() {
 
         <ResponsiveContainer
           width="100%"
-          height={320}
+          height={isMobile ? 240 : 320}
         >
-          <AreaChart data={productivityData}>
+          <AreaChart
+            data={productivityData}
+            margin={{
+              top: 10,
+              right: 10,
+              left: isMobile ? -20 : 0,
+              bottom: 0,
+            }}
+          >
             <defs>
               <linearGradient
                 id="productivityGradient"
@@ -118,30 +132,55 @@ export default function ProductivityChart() {
               >
                 <stop
                   offset="5%"
-                  stopColor="#4F46E5"
+                  stopColor={theme.palette.primary.main}
                   stopOpacity={0.4}
                 />
-
                 <stop
                   offset="95%"
-                  stopColor="#4F46E5"
+                  stopColor={theme.palette.primary.main}
                   stopOpacity={0}
                 />
               </linearGradient>
             </defs>
 
-            <CartesianGrid strokeDasharray="3 3" />
+            <CartesianGrid
+              stroke={theme.palette.divider}
+              strokeDasharray="3 3"
+            />
 
-            <XAxis dataKey="day" />
+            <XAxis
+              dataKey="day"
+              tick={{
+                fill: theme.palette.text.secondary,
+                fontSize: isMobile ? 10 : 12,
+              }}
+              axisLine={false}
+              tickLine={false}
+            />
 
-            <YAxis domain={[0, 100]} />
+            <YAxis
+              domain={[0, 100]}
+              tick={{
+                fill: theme.palette.text.secondary,
+                fontSize: isMobile ? 10 : 12,
+              }}
+              axisLine={false}
+              tickLine={false}
+            />
 
-            <Tooltip />
+            <Tooltip
+              contentStyle={{
+                borderRadius: 12,
+                border: `1px solid ${theme.palette.divider}`,
+                background: theme.palette.background.paper,
+                color: theme.palette.text.primary,
+              }}
+            />
 
             <Area
               type="monotone"
               dataKey="productivity"
-              stroke="#4F46E5"
+              stroke={theme.palette.primary.main}
               strokeWidth={3}
               fill="url(#productivityGradient)"
             />

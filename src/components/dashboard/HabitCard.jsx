@@ -9,20 +9,22 @@ import {
   LinearProgress,
   Stack,
   Typography,
+  useMediaQuery,
+  useTheme,
 } from "@mui/material";
 
 import LocalFireDepartmentRoundedIcon from "@mui/icons-material/LocalFireDepartmentRounded";
 import CheckCircleRoundedIcon from "@mui/icons-material/CheckCircleRounded";
+import EmojiEventsRoundedIcon from "@mui/icons-material/EmojiEventsRounded";
+import TrendingUpRoundedIcon from "@mui/icons-material/TrendingUpRounded";
 
 import { useHabits } from "../../context/HabitContext";
 
 export default function HabitCard() {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
-  const {
-    dashboard,
-    loading,
-    error,
-  } = useHabits();
+  const { dashboard, loading, error } = useHabits();
 
   if (loading) {
     return (
@@ -30,15 +32,15 @@ export default function HabitCard() {
         elevation={0}
         sx={{
           borderRadius: 4,
-          border: "1px solid #E2E8F0",
+          border: `1px solid ${theme.palette.divider}`,
           height: "100%",
         }}
       >
         <CardContent>
           <Stack
-            alignItems="center"
             justifyContent="center"
-            sx={{ py: 6 }}
+            alignItems="center"
+            sx={{ py: 8 }}
           >
             <CircularProgress />
           </Stack>
@@ -48,11 +50,7 @@ export default function HabitCard() {
   }
 
   if (error) {
-    return (
-      <Alert severity="error">
-        {error}
-      </Alert>
-    );
+    return <Alert severity="error">{error}</Alert>;
   }
 
   const progress =
@@ -68,17 +66,27 @@ export default function HabitCard() {
     <Card
       elevation={0}
       sx={{
-        borderRadius: 4,
-        border: "1px solid #E2E8F0",
         height: "100%",
+        borderRadius: 4,
+        border: `1px solid ${theme.palette.divider}`,
+        bgcolor: "background.paper",
       }}
     >
-      <CardContent>
+      <CardContent
+        sx={{
+          p: {
+            xs: 2,
+            md: 3,
+          },
+        }}
+      >
+        {/* Header */}
 
         <Stack
           direction="row"
           justifyContent="space-between"
           alignItems="center"
+          mb={2}
         >
           <Stack
             direction="row"
@@ -86,7 +94,9 @@ export default function HabitCard() {
             alignItems="center"
           >
             <LocalFireDepartmentRoundedIcon
-              sx={{ color: "#F97316" }}
+              sx={{
+                color: "#F97316",
+              }}
             />
 
             <Typography
@@ -98,67 +108,160 @@ export default function HabitCard() {
           </Stack>
 
           <Chip
-            label={`${dashboard.currentStreak} Days`}
             color="warning"
+            label={`${dashboard.currentStreak} Days`}
+            size={isMobile ? "small" : "medium"}
           />
         </Stack>
 
-        <Divider sx={{ my: 3 }} />
+        <Divider sx={{ mb: 3 }} />
 
-        <Stack spacing={3}>
+        {/* Progress */}
+
+        <Typography
+          variant="body2"
+          color="text.secondary"
+          mb={1}
+        >
+          Habit Completion
+        </Typography>
+
+        <LinearProgress
+          variant="determinate"
+          value={progress}
+          sx={{
+            height: 10,
+            borderRadius: 10,
+            mb: 3,
+          }}
+        />
+
+        {/* Statistics */}
+
+        <Stack spacing={2}>
+          <Stack
+            direction="row"
+            justifyContent="space-between"
+            alignItems="center"
+          >
+            <Stack
+              direction="row"
+              spacing={1}
+              alignItems="center"
+            >
+              <LocalFireDepartmentRoundedIcon
+                color="warning"
+              />
+
+              <Typography variant="body2">
+                Current Streak
+              </Typography>
+            </Stack>
+
+            <Typography fontWeight={700}>
+              {dashboard.currentStreak}
+            </Typography>
+          </Stack>
+
+          <Stack
+            direction="row"
+            justifyContent="space-between"
+            alignItems="center"
+          >
+            <Stack
+              direction="row"
+              spacing={1}
+              alignItems="center"
+            >
+              <EmojiEventsRoundedIcon
+                color="primary"
+              />
+
+              <Typography variant="body2">
+                Longest Streak
+              </Typography>
+            </Stack>
+
+            <Typography fontWeight={700}>
+              {dashboard.longestStreak}
+            </Typography>
+          </Stack>
+
+          <Stack
+            direction="row"
+            justifyContent="space-between"
+            alignItems="center"
+          >
+            <Stack
+              direction="row"
+              spacing={1}
+              alignItems="center"
+            >
+              <TrendingUpRoundedIcon
+                color="success"
+              />
+
+              <Typography variant="body2">
+                Active Habits
+              </Typography>
+            </Stack>
+
+            <Typography fontWeight={700}>
+              {dashboard.activeHabits}
+            </Typography>
+          </Stack>
+
+          <Stack
+            direction="row"
+            justifyContent="space-between"
+            alignItems="center"
+          >
+            <Stack
+              direction="row"
+              spacing={1}
+              alignItems="center"
+            >
+              <CheckCircleRoundedIcon
+                color="success"
+              />
+
+              <Typography variant="body2">
+                Completed
+              </Typography>
+            </Stack>
+
+            <Typography fontWeight={700}>
+              {dashboard.completedCount}
+            </Typography>
+          </Stack>
+        </Stack>
+
+        {/* Footer */}
+
+        <Box
+          sx={{
+            mt: 4,
+            textAlign: "center",
+          }}
+        >
+          <CheckCircleRoundedIcon
+            color="success"
+            sx={{
+              fontSize: {
+                xs: 42,
+                md: 56,
+              },
+            }}
+          />
 
           <Typography
             variant="body2"
             color="text.secondary"
+            mt={1}
           >
-            Current Streak
+            {progress}% of your habits are currently active.
           </Typography>
-
-          <LinearProgress
-            variant="determinate"
-            value={progress}
-            sx={{
-              height: 10,
-              borderRadius: 10,
-            }}
-          />
-
-          <Stack spacing={1}>
-
-            <Typography>
-              🔥 Current Streak:
-              <strong> {dashboard.currentStreak}</strong>
-            </Typography>
-
-            <Typography>
-              🏆 Longest Streak:
-              <strong> {dashboard.longestStreak}</strong>
-            </Typography>
-
-            <Typography>
-              ✅ Active Habits:
-              <strong> {dashboard.activeHabits}</strong>
-            </Typography>
-
-            <Typography>
-              📈 Completed:
-              <strong> {dashboard.completedCount}</strong>
-            </Typography>
-
-          </Stack>
-
-          <Box
-            display="flex"
-            justifyContent="center"
-          >
-            <CheckCircleRoundedIcon
-              color="success"
-              sx={{ fontSize: 48 }}
-            />
-          </Box>
-
-        </Stack>
-
+        </Box>
       </CardContent>
     </Card>
   );

@@ -8,6 +8,8 @@ import {
   Paper,
   Stack,
   Typography,
+  useMediaQuery,
+  useTheme,
 } from "@mui/material";
 
 import TrendingUpRoundedIcon from "@mui/icons-material/TrendingUpRounded";
@@ -20,8 +22,10 @@ import { useDashboard } from "../../context/DashboardContext";
 export default function WelcomeCard() {
   const navigate = useNavigate();
 
-  const { user } = useAuth();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
+  const { user } = useAuth();
   const { dashboard } = useDashboard();
 
   const hour = new Date().getHours();
@@ -56,47 +60,58 @@ export default function WelcomeCard() {
       sx={{
         borderRadius: 4,
         overflow: "hidden",
-        background:
-          "linear-gradient(135deg,#4F46E5 0%,#6366F1 100%)",
+        background: "linear-gradient(135deg,#4F46E5 0%,#6366F1 100%)",
         color: "#fff",
       }}
     >
       <Stack
-        direction={{
-          xs: "column",
-          md: "row",
-        }}
+        direction={{ xs: "column", md: "row" }}
         justifyContent="space-between"
-        alignItems={{
-          xs: "flex-start",
-          md: "center",
-        }}
-        spacing={4}
+        alignItems={{ xs: "stretch", md: "center" }}
+        spacing={{ xs: 3, md: 4 }}
         sx={{
-          p: 4,
+          p: {
+            xs: 2,
+            sm: 3,
+            md: 4,
+          },
         }}
       >
+        {/* Left Section */}
         <Box flex={1}>
           <Stack
             direction="row"
             spacing={1}
             alignItems="center"
+            flexWrap="wrap"
+            useFlexGap
           >
             <WavingHandRoundedIcon />
 
             <Typography
-              variant="h4"
               fontWeight={700}
+              sx={{
+                fontSize: {
+                  xs: "1.45rem",
+                  sm: "1.9rem",
+                  md: "2.3rem",
+                },
+                lineHeight: 1.2,
+              }}
             >
-              {greeting},{" "}
-              {user?.fullName || "User"} 👋
+              {greeting}, {user?.fullName || "User"} 👋
             </Typography>
           </Stack>
 
           <Typography
             sx={{
               mt: 2,
-              opacity: .9,
+              opacity: 0.9,
+              maxWidth: 650,
+              fontSize: {
+                xs: 14,
+                sm: 16,
+              },
             }}
           >
             Welcome back to Elevate.
@@ -105,18 +120,18 @@ export default function WelcomeCard() {
 
           <Stack
             direction="row"
-            spacing={2}
-            mt={3}
+            spacing={1}
+            useFlexGap
             flexWrap="wrap"
+            sx={{
+              mt: 3,
+            }}
           >
             <Chip
-              icon={
-                <CalendarTodayRoundedIcon />
-              }
+              icon={<CalendarTodayRoundedIcon />}
               label={today}
               sx={{
-                bgcolor:
-                  "rgba(255,255,255,.15)",
+                bgcolor: "rgba(255,255,255,.18)",
                 color: "#fff",
               }}
             />
@@ -124,8 +139,7 @@ export default function WelcomeCard() {
             <Chip
               label={`${dashboard.completedTasks} Completed`}
               sx={{
-                bgcolor:
-                  "rgba(255,255,255,.15)",
+                bgcolor: "rgba(255,255,255,.18)",
                 color: "#fff",
               }}
             />
@@ -133,8 +147,7 @@ export default function WelcomeCard() {
             <Chip
               label={`${dashboard.pendingTasks} Pending`}
               sx={{
-                bgcolor:
-                  "rgba(255,255,255,.15)",
+                bgcolor: "rgba(255,255,255,.18)",
                 color: "#fff",
               }}
             />
@@ -142,35 +155,51 @@ export default function WelcomeCard() {
 
           <Button
             variant="contained"
+            fullWidth={isMobile}
             sx={{
-              mt: 4,
+              mt: 3,
               bgcolor: "#fff",
               color: "#4F46E5",
               fontWeight: 700,
+              py: 1.2,
               "&:hover": {
                 bgcolor: "#F8FAFC",
               },
             }}
-            onClick={() =>
-              navigate("/tasks")
-            }
+            onClick={() => navigate("/tasks")}
           >
             View Today's Tasks
           </Button>
         </Box>
 
+        {/* Right Section */}
         <Stack
           alignItems="center"
-          spacing={2}
+          spacing={1}
+          sx={{
+            minWidth: {
+              md: 180,
+            },
+          }}
         >
           <Avatar
             src={user?.profileImage || ""}
             sx={{
-              width: 90,
-              height: 90,
-              bgcolor:
-                "rgba(255,255,255,.15)",
-              fontSize: 30,
+              width: {
+                xs: 70,
+                sm: 80,
+                md: 90,
+              },
+              height: {
+                xs: 70,
+                sm: 80,
+                md: 90,
+              },
+              bgcolor: "rgba(255,255,255,.18)",
+              fontSize: {
+                xs: 24,
+                md: 30,
+              },
               fontWeight: 700,
             }}
           >
@@ -179,25 +208,37 @@ export default function WelcomeCard() {
 
           <TrendingUpRoundedIcon
             sx={{
-              fontSize: 50,
-              opacity: .9,
+              fontSize: {
+                xs: 36,
+                md: 48,
+              },
+              opacity: 0.9,
             }}
           />
 
           <Typography
             fontWeight={600}
+            sx={{
+              fontSize: {
+                xs: 14,
+                md: 16,
+              },
+            }}
           >
             Productivity
           </Typography>
 
           <Typography
-            variant="h3"
             fontWeight={700}
+            sx={{
+              fontSize: {
+                xs: "2rem",
+                sm: "2.4rem",
+                md: "3rem",
+              },
+            }}
           >
-            {Math.round(
-              dashboard.productivity
-            )}
-            %
+            {Math.round(dashboard.productivity)}%
           </Typography>
         </Stack>
       </Stack>
