@@ -1,4 +1,4 @@
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 
 import {
   Box,
@@ -19,6 +19,9 @@ import AnalyticsRoundedIcon from "@mui/icons-material/AnalyticsRounded";
 import PersonRoundedIcon from "@mui/icons-material/PersonRounded";
 import SettingsRoundedIcon from "@mui/icons-material/SettingsRounded";
 import TrendingUpRoundedIcon from "@mui/icons-material/TrendingUpRounded";
+import LogoutRoundedIcon from "@mui/icons-material/LogoutRounded";
+
+import { useAuth } from "../../context/AuthContext";
 
 const menuItems = [
   {
@@ -60,6 +63,19 @@ const menuItems = [
 
 export default function Sidebar({ onNavigate }) {
   const location = useLocation();
+  const navigate = useNavigate();
+
+  const { logout } = useAuth();
+
+  const handleLogout = () => {
+    logout();
+
+    if (onNavigate) {
+      onNavigate();
+    }
+
+    navigate("/", { replace: true });
+  };
 
   return (
     <Box
@@ -87,10 +103,7 @@ export default function Sidebar({ onNavigate }) {
         />
 
         <Box>
-          <Typography
-            variant="h6"
-            fontWeight={700}
-          >
+          <Typography variant="h6" fontWeight={700}>
             Elevate
           </Typography>
 
@@ -158,6 +171,39 @@ export default function Sidebar({ onNavigate }) {
           </ListItemButton>
         ))}
       </List>
+
+      <Divider />
+
+      {/* Logout */}
+      <Box sx={{ px: 2, py: 1 }}>
+        <ListItemButton
+          onClick={handleLogout}
+          sx={{
+            borderRadius: 2,
+            color: "error.main",
+
+            "& .MuiListItemIcon-root": {
+              color: "error.main",
+              minWidth: 42,
+            },
+
+            "&:hover": {
+              bgcolor: "error.lighter",
+            },
+          }}
+        >
+          <ListItemIcon>
+            <LogoutRoundedIcon />
+          </ListItemIcon>
+
+          <ListItemText
+            primary="Logout"
+            primaryTypographyProps={{
+              fontWeight: 600,
+            }}
+          />
+        </ListItemButton>
+      </Box>
 
       <Divider />
 
